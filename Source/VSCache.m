@@ -6,7 +6,7 @@
 //  Copyright © 2018 Viacheslav Soroka. All rights reserved.
 //
 
-static const NSUInteger kVSDefaultCountLimit = 50;
+static const unsigned long kVSDefaultCountLimit = 50;
 
 #import "VSCache.h"
 
@@ -41,7 +41,7 @@ static const NSUInteger kVSDefaultCountLimit = 50;
     if (self = [super init]) {
         self.objects = [NSMutableDictionary dictionary];
         self.keys = [NSMutableArray array];
-        self.countLimit =
+        self.countLimit = kVSDefaultCountLimit;
         
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(onApplicationDidReceiveMemoryWarning:)
@@ -68,16 +68,19 @@ static const NSUInteger kVSDefaultCountLimit = 50;
 - (void)setObject:(id)object forKey:(PRKeyType)key {
     @synchronized(self) {
         [self.objects setObject:object forKey:key];
+        NSMutableArray *keys = self.keys;
         if (object) {
-            if ([self.keys containsObject:key]) {
-                [self.keys removeObject:key];
+            if ([keys containsObject:key]) {
+                [keys removeObject:key];
             }
             
-            [self.keys addObject:key];
+            [keys addObject:key];
         }
         else {
-            [self.keys removeObject:key];
+            [keys removeObject:key];
         }
+        
+        [self cleanupWithCountLimit:self.countLimit];
     }
 }
 
@@ -132,9 +135,16 @@ static const NSUInteger kVSDefaultCountLimit = 50;
 
 #pragma mark - Private Methods
 
-- (void)cleanupWithCountLimit:(NSInteger)countLimit
-{
-    
+- (void)cleanupWithCountLimit:(NSInteger)countLimit {
+    @synchronized(self) {
+        NSMutableArray *keys = self.keys;
+        NSMutableDictionary *objects = self.objects;
+        while ((keys.count > countLimit) && keys.count) {
+            PRKeyType key = [keys firstObject];
+            [keys removeObjectAtIndex:0];
+            [objects removeObjectForKey:key];
+        }
+    }
 }
 
 #pragma mark - Notifications

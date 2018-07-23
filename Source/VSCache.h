@@ -7,7 +7,6 @@
 //
 
 #import <UIKit/UIKit.h>
-#import <Foundation/Foundation.h>
 
 typedef id<NSCopying, NSCoding> PRKeyType;
 

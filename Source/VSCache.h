@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-typedef id<NSCopying, NSCoding> PRKeyType;
+typedef id<NSCopying, NSCoding> VSKeyType;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -17,16 +17,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)sharedCache;
 
-- (void)setObject:(nullable id)object forKey:(PRKeyType)key;
+- (void)setObject:(nullable id)object forKey:(VSKeyType)key;
 
-- (void)removeObjectForKey:(PRKeyType)key;
+- (void)removeObjectForKey:(VSKeyType)key;
 - (void)removeObject:(id)object;
 - (void)removeAllObjects;
 
-- (nullable id)objectForKey:(PRKeyType)key;
+- (nullable id)objectForKey:(VSKeyType)key;
 
 - (NSEnumerator *)objectEnumerator;
-- (NSEnumerator<PRKeyType> *)keyEnumerator;
+- (NSEnumerator<VSKeyType> *)keyEnumerator;
 
 @end
 

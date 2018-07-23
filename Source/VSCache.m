@@ -6,13 +6,13 @@
 //  Copyright © 2018 Viacheslav Soroka. All rights reserved.
 //
 
-static const unsigned long kVSDefaultCountLimit = 50;
-
 #import "VSCache.h"
+
+static const NSUInteger kVSDefaultCountLimit = 50;
 
 @interface VSCache ()
 @property (nonatomic, strong) NSMutableDictionary *objects;
-@property (nonatomic, strong) NSMutableArray<PRKeyType> *keys;
+@property (nonatomic, strong) NSMutableArray<VSKeyType> *keys;
 
 @end
 
@@ -65,7 +65,7 @@ static const unsigned long kVSDefaultCountLimit = 50;
 
 #pragma mark - Public Methods
 
-- (void)setObject:(id)object forKey:(PRKeyType)key {
+- (void)setObject:(id)object forKey:(VSKeyType)key {
     @synchronized(self) {
         [self.objects setObject:object forKey:key];
         NSMutableArray *keys = self.keys;
@@ -84,7 +84,7 @@ static const unsigned long kVSDefaultCountLimit = 50;
     }
 }
 
-- (void)removeObjectForKey:(PRKeyType)key {
+- (void)removeObjectForKey:(VSKeyType)key {
     @synchronized(self) {
         [self.objects removeObjectForKey:key];
         [self.keys removeObject:key];
@@ -115,7 +115,7 @@ static const unsigned long kVSDefaultCountLimit = 50;
     }
 }
 
-- (id)objectForKey:(PRKeyType)key {
+- (id)objectForKey:(VSKeyType)key {
     @synchronized(self.objects) {
         return [self.objects objectForKey:key];
     }
@@ -140,7 +140,7 @@ static const unsigned long kVSDefaultCountLimit = 50;
         NSMutableArray *keys = self.keys;
         NSMutableDictionary *objects = self.objects;
         while ((keys.count > countLimit) && keys.count) {
-            PRKeyType key = [keys firstObject];
+            VSKeyType key = [keys firstObject];
             [keys removeObjectAtIndex:0];
             [objects removeObjectForKey:key];
         }

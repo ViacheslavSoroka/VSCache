@@ -10,6 +10,16 @@
 
 #import "VSCache.h"
 
+#define SuppressPerformSelectorLeakWarning(code) \
+_Pragma("clang diagnostic push") \
+_Pragma("clang diagnostic ignored \"-Warc-performSelector-leaks\"") \
+code; \
+_Pragma("clang diagnostic pop") \
+
+@interface iOSTests : XCTestCase
+
+@end
+
 @implementation iOSTests: XCTestCase
 
 - (void)testCountLimit {
@@ -52,15 +62,33 @@
 }
 
 - (void)testMemoryWarning {
-    VSCache *cache = [VSCache new];
-    cache.countLimit = 20;
-    
-    [self fillCache:cache withObjectsCount:20];
+    VSCache *cache = [self cacheWithObjectsCount:20 countLimit:20];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationDidReceiveMemoryWarningNotification
                                                         object:nil];
     
     XCTAssert(![[[cache objectEnumerator] allObjects] count]);
+}
+
+- (void)testForThreadSafeEnumeration {
+    __auto_type iterateAndMutate = ^void(NSEnumerator *enumerator, SEL selector, VSCache *cache) {
+        for (id obj in enumerator) {
+            dispatch_sync(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+                SuppressPerformSelectorLeakWarning(
+                    [cache performSelector:selector withObject:obj];
+                );
+            });
+        }
+    };
+    
+    @try {
+        VSCache *cache = [self cacheWithObjectsCount:20 countLimit:20];
+        iterateAndMutate([cache objectEnumerator], @selector(removeObject:), cache);
+        iterateAndMutate([cache keyEnumerator], @selector(removeObjectForKey:), cache);
+    }
+    @catch (NSException *exc) {
+        XCTFail(@"Exception: %@", exc);
+    }
 }
 
 #pragma mark - Private Methods

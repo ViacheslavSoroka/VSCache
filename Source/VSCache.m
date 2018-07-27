@@ -124,13 +124,13 @@ static const NSUInteger kVSDefaultCountLimit = 50;
 
 - (NSEnumerator *)objectEnumerator {
     @synchronized(self) {
-        return [self.objects objectEnumerator];
+        return [[self.objects copy] objectEnumerator];
     }
 }
 
 - (NSEnumerator *)keyEnumerator {
     @synchronized(self) {
-        return [self.objects keyEnumerator];
+        return [[self.objects copy] keyEnumerator];
     }
 }
 

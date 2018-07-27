@@ -95,7 +95,7 @@ static const NSUInteger kVSDefaultCountLimit = 50;
     @synchronized(self) {
         NSMutableDictionary *objects = self.objects;
         NSEnumerator *enumerator = [objects keyEnumerator];
-        id key;
+        id key = nil;
         
         for (id cachedKey in enumerator) {
             if (object == [objects objectForKey:cachedKey]) {
@@ -103,8 +103,10 @@ static const NSUInteger kVSDefaultCountLimit = 50;
             }
         }
         
-        [objects removeObjectForKey:key];
-        [self.keys removeObject:key];
+        if (key) {
+            [objects removeObjectForKey:key];
+            [self.keys removeObject:key];
+        }
     }
 }
 
@@ -116,19 +118,19 @@ static const NSUInteger kVSDefaultCountLimit = 50;
 }
 
 - (id)objectForKey:(VSKeyType)key {
-    @synchronized(self.objects) {
+    @synchronized(self) {
         return [self.objects objectForKey:key];
     }
 }
 
 - (NSEnumerator *)objectEnumerator {
-    @synchronized(self.objects) {
+    @synchronized(self) {
         return [self.objects objectEnumerator];
     }
 }
 
 - (NSEnumerator *)keyEnumerator {
-    @synchronized(self.objects) {
+    @synchronized(self) {
         return [self.objects keyEnumerator];
     }
 }

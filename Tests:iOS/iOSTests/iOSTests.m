@@ -28,7 +28,7 @@ static const NSInteger kVSDefaultCacheSize = 20;
     const NSInteger count = kVSDefaultCacheSize;
     VSCache *cache = [self cacheWithObjectsCount:count + 1 countLimit:count];
     
-    XCTAssert([[[cache objectEnumerator] allObjects] count] == count);
+    XCTAssert(cache.count == count);
 }
 
 - (void)testObjectOrder {
@@ -54,17 +54,17 @@ static const NSInteger kVSDefaultCacheSize = 20;
     const NSInteger halfCount = defaultCount / 2;
     VSCache *cache = [self cacheWithObjectsCount:defaultCount countLimit:defaultCount];
     
-    XCTAssert([[[cache objectEnumerator] allObjects] count] == defaultCount);
+    XCTAssert(cache.count == defaultCount);
     
     cache.countLimit = halfCount;
     
-    XCTAssert([[[cache objectEnumerator] allObjects] count] == halfCount);
+    XCTAssert(cache.count == halfCount);
     
     cache.countLimit = defaultCount;
     
     [cache setObject:[NSObject new] forKey:@"obj"];
     
-    XCTAssert([[[cache objectEnumerator] allObjects] count] == (halfCount + 1));
+    XCTAssert(cache.count == (halfCount + 1));
 }
 
 - (void)testMemoryWarning {
@@ -74,7 +74,7 @@ static const NSInteger kVSDefaultCacheSize = 20;
     [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationDidReceiveMemoryWarningNotification
                                                         object:nil];
     
-    XCTAssert(![[[cache objectEnumerator] allObjects] count]);
+    XCTAssert(!cache.count);
 }
 
 - (void)testForThreadSafeEnumeration {

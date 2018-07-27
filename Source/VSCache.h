@@ -13,6 +13,8 @@ typedef id<NSCopying, NSCoding> VSKeyType;
 NS_ASSUME_NONNULL_BEGIN
 
 @interface VSCache : NSObject
+@property (nonatomic, readonly) NSUInteger count;
+
 @property (nonatomic, assign) NSUInteger countLimit;
 
 + (instancetype)sharedCache;

@@ -54,6 +54,12 @@ static const NSUInteger kVSDefaultCountLimit = 50;
 
 #pragma mark - Accessors
 
+- (NSUInteger)count {
+    @synchronized(self) {
+        return self.objects.count;
+    }
+}
+
 - (void)setCountLimit:(NSUInteger)countLimit {
     if (_countLimit != countLimit) {
         _countLimit = countLimit;

@@ -16,6 +16,8 @@ _Pragma("clang diagnostic ignored \"-Warc-performSelector-leaks\"") \
 code; \
 _Pragma("clang diagnostic pop") \
 
+static const NSInteger kVSDefaultCacheSize = 20;
+
 @interface iOSTests : XCTestCase
 
 @end
@@ -23,22 +25,24 @@ _Pragma("clang diagnostic pop") \
 @implementation iOSTests: XCTestCase
 
 - (void)testCountLimit {
-    NSInteger countLimit = 20;
-    VSCache *cache = [self cacheWithObjectsCount:265 countLimit:countLimit];
+    const NSInteger count = kVSDefaultCacheSize;
+    VSCache *cache = [self cacheWithObjectsCount:count + 1 countLimit:count];
     
-    XCTAssert([[[cache objectEnumerator] allObjects] count] == countLimit);
+    XCTAssert([[[cache objectEnumerator] allObjects] count] == count);
 }
 
 - (void)testObjectOrder {
-    VSCache *cache = [VSCache new];
-    cache.countLimit = 20;
+    const NSInteger count = kVSDefaultCacheSize;
     
-    NSString *first = @"first";
+    VSCache *cache = [VSCache new];
+    cache.countLimit = count;
+    
+    NSString * const first = @"first";
     [cache setObject:[NSObject new] forKey:first];
     
-    [self fillCache:cache withObjectsCount:20];
+    [self fillCache:cache withObjectsCount:count];
     
-    NSString *last = @"last";
+    NSString * const last = @"last";
     [cache setObject:[NSObject new] forKey:last];
     
     XCTAssert(![cache objectForKey:first]);
@@ -46,23 +50,26 @@ _Pragma("clang diagnostic pop") \
 }
 
 - (void)testCountLimitChanges {
-    VSCache *cache = [self cacheWithObjectsCount:20 countLimit:20];
+    const NSInteger defaultCount = kVSDefaultCacheSize;
+    const NSInteger halfCount = defaultCount / 2;
+    VSCache *cache = [self cacheWithObjectsCount:defaultCount countLimit:defaultCount];
     
-    XCTAssert([[[cache objectEnumerator] allObjects] count] == 20);
+    XCTAssert([[[cache objectEnumerator] allObjects] count] == defaultCount);
     
-    cache.countLimit = 10;
+    cache.countLimit = halfCount;
     
-    XCTAssert([[[cache objectEnumerator] allObjects] count] == 10);
+    XCTAssert([[[cache objectEnumerator] allObjects] count] == halfCount);
     
-    cache.countLimit = 20;
+    cache.countLimit = defaultCount;
     
     [cache setObject:[NSObject new] forKey:@"obj"];
     
-    XCTAssert([[[cache objectEnumerator] allObjects] count] == 11);
+    XCTAssert([[[cache objectEnumerator] allObjects] count] == (halfCount + 1));
 }
 
 - (void)testMemoryWarning {
-    VSCache *cache = [self cacheWithObjectsCount:20 countLimit:20];
+    const NSInteger count = kVSDefaultCacheSize;
+    VSCache *cache = [self cacheWithObjectsCount:count countLimit:count];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationDidReceiveMemoryWarningNotification
                                                         object:nil];
@@ -81,8 +88,9 @@ _Pragma("clang diagnostic pop") \
         }
     };
     
+    const NSInteger count = kVSDefaultCacheSize;
     @try {
-        VSCache *cache = [self cacheWithObjectsCount:20 countLimit:20];
+        VSCache *cache = [self cacheWithObjectsCount:count countLimit:count];
         iterateAndMutate([cache objectEnumerator], @selector(removeObject:), cache);
         iterateAndMutate([cache keyEnumerator], @selector(removeObjectForKey:), cache);
     }

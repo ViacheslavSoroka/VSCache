@@ -54,8 +54,7 @@ static const NSUInteger kVSDefaultCountLimit = 50;
 
 #pragma mark - Accessors
 
-- (void)setCountLimit:(NSUInteger)countLimit
-{
+- (void)setCountLimit:(NSUInteger)countLimit {
     if (_countLimit != countLimit) {
         _countLimit = countLimit;
         

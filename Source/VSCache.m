@@ -99,7 +99,7 @@ static const NSUInteger kVSDefaultCountLimit = 50;
 - (void)removeObject:(id)object {
     @synchronized(self) {
         NSMutableDictionary *objects = self.objects;
-        NSEnumerator *enumerator = [objects keyEnumerator];
+        NSEnumerator *enumerator = [[objects copy] keyEnumerator];
         id key = nil;
         
         for (id cachedKey in enumerator) {

@@ -79,13 +79,19 @@ static const NSInteger kVSDefaultCacheSize = 20;
 
 - (void)testForThreadSafeEnumeration {
     __auto_type iterateAndMutate = ^void(NSEnumerator *enumerator, SEL selector, VSCache *cache) {
+        dispatch_group_t group = dispatch_group_create();
         for (id obj in enumerator) {
-            dispatch_sync(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+            dispatch_group_enter(group);
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
                 SuppressPerformSelectorLeakWarning(
                     [cache performSelector:selector withObject:obj];
                 );
+                
+                dispatch_group_leave(group);
             });
         }
+        
+        dispatch_group_wait(group, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(100 * NSEC_PER_SEC)));
     };
     
     const NSInteger count = kVSDefaultCacheSize;
@@ -97,6 +103,32 @@ static const NSInteger kVSDefaultCacheSize = 20;
     @catch (NSException *exc) {
         XCTFail(@"Exception: %@", exc);
     }
+}
+
+- (void)testForThreadSafeWork {
+    const NSInteger count = kVSDefaultCacheSize;
+    VSCache *cache = [self cacheWithObjectsCount:count countLimit:count];
+    
+    const NSInteger numberOfThreads = 10;
+    const NSInteger numberOfIterations = 100;
+    
+    dispatch_group_t group = dispatch_group_create();
+    for (NSInteger count = 0; count < numberOfThreads; count++) {
+        dispatch_group_enter(group);
+        
+        const char *label = [[NSString stringWithFormat:@"test.%ld", count] UTF8String];
+        dispatch_queue_t queue = dispatch_queue_create(label, DISPATCH_QUEUE_SERIAL);
+        dispatch_async(queue, ^{
+            for (NSInteger index = 0; index < numberOfIterations; index++) {
+                [cache setObject:[NSObject new] forKey:[NSUUID UUID].UUIDString];
+                [cache objectForKey:[NSUUID UUID].UUIDString];
+            }
+            
+            dispatch_group_leave(group);
+        });
+    }
+    
+    dispatch_group_wait(group, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(100 * NSEC_PER_SEC)));
 }
 
 #pragma mark - Private Methods

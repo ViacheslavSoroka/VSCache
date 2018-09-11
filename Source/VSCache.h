@@ -8,27 +8,25 @@
 
 #import <UIKit/UIKit.h>
 
-typedef id<NSCopying, NSCoding> VSKeyType;
-
 NS_ASSUME_NONNULL_BEGIN
 
-@interface VSCache : NSObject
+@interface VSCache <KeyType, ObjectType> : NSObject
 @property (nonatomic, readonly) NSUInteger count;
 
 @property (nonatomic, assign) NSUInteger countLimit;
 
 + (instancetype)sharedCache;
 
-- (void)setObject:(nullable id)object forKey:(VSKeyType)key;
+- (void)setObject:(nullable ObjectType)object forKey:(KeyType)key;
 
-- (void)removeObjectForKey:(VSKeyType)key;
-- (void)removeObject:(id)object;
+- (void)removeObjectForKey:(KeyType)key;
+- (void)removeObject:(ObjectType)object;
 - (void)removeAllObjects;
 
-- (nullable id)objectForKey:(VSKeyType)key;
+- (nullable ObjectType)objectForKey:(KeyType)key;
 
-- (NSEnumerator *)objectEnumerator;
-- (NSEnumerator<VSKeyType> *)keyEnumerator;
+- (NSEnumerator<ObjectType> *)objectEnumerator;
+- (NSEnumerator<KeyType> *)keyEnumerator;
 
 @end
 

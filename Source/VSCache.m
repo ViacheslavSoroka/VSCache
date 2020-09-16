@@ -148,6 +148,10 @@ static const NSUInteger kVSDefaultCountLimit = 50;
         NSMutableDictionary *objects = self.objects;
         while ((keys.count > countLimit) && keys.count) {
             id key = [keys firstObject];
+            id object = objects[key];
+
+            [_delegate cache:self willEvictObject:object];
+
             [keys removeObjectAtIndex:0];
             [objects removeObjectForKey:key];
         }

@@ -10,9 +10,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface VSCache <KeyType, ObjectType> : NSObject
-@property (nonatomic, readonly) NSUInteger count;
+@protocol VSCacheDelegate;
 
+@interface VSCache <KeyType, ObjectType> : NSObject
+
+@property (nullable, assign) id<VSCacheDelegate> delegate;
+
+@property (nonatomic, readonly) NSUInteger count;
 @property (nonatomic, assign) NSUInteger countLimit;
 
 + (instancetype)sharedCache;
@@ -29,5 +33,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSEnumerator<KeyType> *)keyEnumerator;
 
 @end
+
+@protocol VSCacheDelegate <NSObject>
+@optional
+- (void)cache:(VSCache *)cache willEvictObject:(id)obj;
+@end
+
 
 NS_ASSUME_NONNULL_END
